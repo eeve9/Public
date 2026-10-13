@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17142b">
+<title>PhotoTone｜写真の印象診断</title>
+<style>
+:root{color-scheme:dark;--bg:#11101b;--panel:#1b1930;--line:#34304e;--text:#f6f4ff;--muted:#b8b3d1;--accent:#b9a4ff;--accent2:#8fe3d0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#282044 0,#11101b 55%);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;line-height:1.65}
+main{max-width:760px;margin:auto;padding:24px 16px 48px}.brand{font-size:13px;letter-spacing:.18em;color:var(--accent2);font-weight:700}
+h1{font-size:clamp(28px,7vw,42px);line-height:1.2;margin:10px 0}p{color:var(--muted)}.panel{background:#1b1930eF;border:1px solid var(--line);border-radius:22px;padding:20px;margin:18px 0;box-shadow:0 16px 40px #0002}
+.note{font-size:13px;background:#25213c;border-radius:12px;padding:12px;color:#d5d0ea}.drop{display:block;border:1.5px dashed #766a9d;border-radius:16px;padding:22px;text-align:center;margin:16px 0;cursor:pointer;background:#171529}
+input[type=file]{max-width:100%;margin-top:12px}button{border:0;border-radius:12px;padding:13px 18px;background:var(--accent);color:#171126;font-weight:800;font-size:15px;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:10px;flex-wrap:wrap}.secondary{background:#34304e;color:var(--text)}.preview{display:none;width:100%;max-height:380px;object-fit:contain;border-radius:14px;margin-top:12px;background:#0c0b13}.result{display:none}.score{font-size:56px;font-weight:850;letter-spacing:-.04em;color:var(--accent2)}.meter{height:9px;background:#38334f;border-radius:99px;overflow:hidden}.meter span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.metric{background:#24213b;border-radius:14px;padding:14px}.metric b{display:block;font-size:20px}.small{font-size:12px;color:var(--muted)}footer{font-size:12px;color:var(--muted);padding:10px 2px}a{color:var(--accent2)}.status{min-height:1.5em;color:var(--accent2);font-size:14px}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">PHOTOTONE / PHOTO CHECK</div>
+  <h1>写真の印象を、<br>やさしくチェック。</h1>
+  <p>顔の価値や美しさを判定するのではなく、写真の明るさ・構図・写りやすさをチェックするエンタメ診断です。</p>
+
+  <section class="panel">
+    <h2>📷 写真を選ぶ</h2>
+    <div class="note">写真はこのページ内でのみ処理します。サーバーへ送信・保存しません。できれば自分が共有してよい写真を選んでください。</div>
+    <label class="drop" for="photo">
+      <strong>ここから写真を選択</strong><br>
+      <span class="small">JPG / PNG / WebP・最大10MB</span><br>
+      <input id="photo" type="file" accept="image/jpeg,image/png,image/webp">
+    </label>
+    <img id="preview" class="preview" alt="選択した写真のプレビュー">
+    <div class="actions">
+      <button id="run" disabled>写真をチェックする</button>
+      <button id="clear" class="secondary" type="button">写真を消す</button>
+    </div>
+    <div id="status" class="status" role="status"></div>
+  </section>
+
+  <section id="result" class="panel result" aria-live="polite">
+    <div class="small">PHOTO READINESS SCORE</div>
+    <div><span id="score" class="score">—</span><span>/100</span></div>
+    <div class="meter"><span id="bar"></span></div>
+    <p id="summary"></p>
+    <div class="grid">
+      <div class="metric"><span class="small">明るさ</span><b id="brightness">—</b><span id="brightnessText" class="small"></span></div>
+      <div class="metric"><span class="small">明暗のメリハリ</span><b id="contrast">—</b><span id="contrastText" class="small"></span></div>
+      <div class="metric"><span class="small">画像サイズ</span><b id="resolution">—</b><span id="resolutionText" class="small"></span></div>
+    </div>
+    <h3>写真をよく見せるヒント</h3>
+    <ul id="tips"></ul>
+    <p class="small">このスコアは画像の技術的な特徴から計算した目安です。顔の魅力・性格・本人確認・健康状態などを判定するものではありません。</p>
+  </section>
+
+  <section class="panel">
+    <h2>🔒 プライバシーと安全</h2>
+    <ul>
+      <li>画像のアップロード先や保存機能はありません。</li>
+      <li>診断結果はこの画面にだけ表示されます。</li>
+      <li>他人の写真を、本人の許可なく使わないでください。</li>
+      <li>公開する場合は、連絡先や管理者情報を別途整えてください。</li>
+    </ul>
+    <div class="note"><strong>管理者機能について：</strong>この試作版は写真を保存しない設計のため、管理者が写真を閲覧する機能もありません。通報受付・管理者ログイン・通報一覧などを実装するには、安全なサーバー側機能が別途必要です。ブラウザ内だけの「管理者パスワード」は安全な管理機能にならないため、ここには設けていません。</div>
+  </section>
+  <footer>PhotoTone — 写真の写り方をチェックするデモ。医療・本人確認・美醜判定には使用できません。</footer>
+</main>
+<script>
+const fileInput=document.getElementById('photo'),preview=document.getElementById('preview'),run=document.getElementById('run'),clearBtn=document.getElementById('clear'),statusEl=document.getElementById('status'),result=document.getElementById('result');
+let currentUrl=null,currentImage=null;
+fileInput.addEventListener('change',()=>{
+  resetResult();
+  const f=fileInput.files&&fileInput.files[0];
+  if(!f){run.disabled=true;return}
+  if(!['image/jpeg','image/png','image/webp'].includes(f.type)){statusEl.textContent='JPG・PNG・WebP形式の画像を選んでください。';fileInput.value='';run.disabled=true;return}
+  if(f.size>10*1024*1024){statusEl.textContent='ファイルは10MB以下にしてください。';fileInput.value='';run.disabled=true;return}
+  if(currentUrl)URL.revokeObjectURL(currentUrl);
+  currentUrl=URL.createObjectURL(f);
+  preview.onload=()=>{currentImage=preview;run.disabled=false;statusEl.textContent='写真を読み込みました。画像は送信されません。'};
+  preview.onerror=()=>{statusEl.textContent='画像を読み込めませんでした。別の画像をお試しください。';run.disabled=true};
+  preview.src=currentUrl;preview.style.display='block';
+});
+function resetResult(){result.style.display='none';statusEl.textContent=''}
+clearBtn.addEventListener('click',()=>{fileInput.value='';preview.removeAttribute('src');preview.style.display='none';run.disabled=true;currentImage=null;if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl=null;resetResult();statusEl.textContent='写真を消しました。'});
+run.addEventListener('click',()=>{
+ if(!currentImage)return;
+ try{
+  const w=currentImage.naturalWidth,h=currentImage.naturalHeight;
+  const c=document.createElement('canvas');const max=220;c.width=Math.min(w,max);c.height=Math.max(1,Math.round(h*c.width/w));
+  const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(currentImage,0,0,c.width,c.height);
+  const d=ctx.getImageData(0,0,c.width,c.height).data;let sum=0,sum2=0,n=0;
+  for(let i=0;i<d.length;i+=16){const lum=.2126*d[i]+.7152*d[i+1]+.0722*d[i+2];sum+=lum;sum2+=lum*lum;n++}
+  const mean=sum/n,sd=Math.sqrt(Math.max(0,sum2/n-mean*mean));
+  const brightScore=Math.max(0,100-Math.abs(mean-135)*1.35);
+  const contrastScore=Math.min(100,sd*2.1);
+  const sizeScore=Math.min(100,Math.round(Math.min(w*h,1600000)/1600000*100));
+  const total=Math.round(brightScore*.45+contrastScore*.25+sizeScore*.30);
+  document.getElementById('score').textContent=total;
+  document.getElementById('bar').style.width=total+'%';
+  document.getElementById('brightness').textContent=Math.round(mean)+'/255';
+  document.getElementById('contrast').textContent=Math.round(sd)+'/128';
+  document.getElementById('resolution').textContent=w+' × '+h;
+  const btxt=mean<75?'暗め':mean>195?'明るめ':'ほどよい明るさ';
+  const ctxt=sd<30?'メリハリ控えめ':sd>75?'メリハリ強め':'中程度';
+  document.getElementById('brightnessText').textContent=btxt;
+  document.getElementById('contrastText').textContent=ctxt;
+  document.getElementById('resolutionText').textContent=(w<600||h<600)?'小さめの画像です':'十分な解像度です';
+  document.getElementById('summary').textContent=total>=80?'明るさ・画像サイズなどの条件が比較的そろっています。':total>=55?'少し調整すると、見やすい写真になりそうです。':'撮影環境や画像サイズを見直すと、さらに見やすくなりそうです。';
+  const tips=[];
+  if(mean<90)tips.push('顔や被写体の正面から、やわらかい光を当ててみましょう。');
+  else if(mean>205)tips.push('窓や照明を真正面に入れず、白飛びを避けてみましょう。');
+  else tips.push('今の明るさを保ち、背景との境目が見える場所で撮影してみましょう。');
+  if(sd<35)tips.push('背景と被写体の色が近い場合は、背景を少し変えると見やすくなります。');
+  if(w<700||h<700)tips.push('可能なら、カメラの高い解像度設定で撮り直してみましょう。');
+  tips.push('カメラを目線の高さに近づけ、写真の周りに少し余白を残すと整って見えます。');
+  document.getElementById('tips').replaceChildren(...tips.map(t=>{const li=document.createElement('li');li.textContent=t;return li}));
+  result.style.display='block';statusEl.textContent='診断が終わりました。';result.scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(e){statusEl.textContent='この画像は解析できませんでした。別の画像をお試しください。'}
+});
+</script>
+</body>
+</html>
